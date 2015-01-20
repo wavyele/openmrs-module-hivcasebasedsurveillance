@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module configVersion="1.2">
+
+	<!-- Module Properties -->
+	<id>hivcasebasedsurveillance</id>
+	<name>HIV Case Based Surveillance Module</name>
+	<version>1.0-SNAPSHOT</version>
+	<package>org.openmrs.module.hivcasebasedsurveillance</package>
+	<author>KOOchieng</author>
+	<description>
+		Module to be used to support the HIV Case Based Surveillance by extracting certain events from the OpenMRS DB
+	</description>
+	<updateURL>https://modules.openmrs.org/modules/download/hivcasebasedsurveillance/update.rdf</updateURL>
+	<require_version>1.9.0</require_version>
+	<!-- / Module Properties -->
+
+	
+	<!-- Module Activator -->
+	<activator>org.openmrs.module.hivcasebasedsurveillance.HIVCaseBasedSurveillanceActivator</activator>
+	
+	
+	<!-- Maps hibernate file's, if present -->
+	<mappingFiles>
+				
+	</mappingFiles>
+
+	<!-- Internationalization -->
+	<!-- All message codes should start with hivcasebasedsurveillance. -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>
+	<messages>
+		<lang>fr</lang>
+		<file>messages_fr.properties</file>
+	</messages>
+	<messages>
+		<lang>es</lang>
+		<file>messages_es.properties</file>
+	</messages>
+	<!-- /Internationalization -->
+	<advice>
+	    <point>org.openmrs.api.PatientService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientAroundAdvisor</class>
+	</advice>
+</module>
+
