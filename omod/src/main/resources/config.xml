@@ -44,5 +44,17 @@
 	    <point>org.openmrs.api.PatientService</point>
 	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientAroundAdvisor</class>
 	</advice>
+	<advice>
+	    <point>org.openmrs.api.EncounterService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientEncounterAroundAdvisor</class>
+	</advice>
+	<advice>
+	    <point>org.openmrs.api.ObsService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientObsReturningAdvice</class>
+	</advice>
+	<advice>
+	    <point>org.openmrs.api.OrderService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientOrderReturningAdvice</class>
+	</advice>
 </module>
 

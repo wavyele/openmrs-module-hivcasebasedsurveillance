@@ -9,7 +9,7 @@
 	<package>org.openmrs.module.hivcasebasedsurveillance</package>
 	<author>KOOchieng</author>
 	<description>
-		Module to be used to support the HIV Case Based Surveillance by extracting certain events from the OpenMRS DB
+		Module to asssist the HIV case based surveillance project by mining certain data from the OpenMRS application and sending it to a central data store manned by NASCOP
 	</description>
 	<updateURL>https://modules.openmrs.org/modules/download/hivcasebasedsurveillance/update.rdf</updateURL>
 	<require_version>1.9.0</require_version>
@@ -43,6 +43,18 @@
 	<advice>
 	    <point>org.openmrs.api.PatientService</point>
 	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientAroundAdvisor</class>
+	</advice>
+	<advice>
+	    <point>org.openmrs.api.EncounterService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientEncounterAroundAdvisor</class>
+	</advice>
+	<advice>
+	    <point>org.openmrs.api.ObsService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientObsReturningAdvice</class>
+	</advice>
+	<advice>
+	    <point>org.openmrs.api.OrderService</point>
+	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientOrderReturningAdvice</class>
 	</advice>
 </module>
 

@@ -3,6 +3,7 @@
 	<name>hivcasebasedsurveillance</name>
 	<comment></comment>
 	<projects>
+		<project>Hl7Module</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

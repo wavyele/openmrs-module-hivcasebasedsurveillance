@@ -7,7 +7,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>HIV Case Based Surveillance Module</name>
-	<description>Module to be used to support the HIV Case Based Surveillance by extracting certain events from the OpenMRS DB</description>
+	<description>Module to asssist the HIV case based surveillance project by mining certain data from the OpenMRS application and sending it to a central data store manned by NASCOP</description>
 	<url>https://wiki.openmrs.org/display/docs/HIV+Case+Based+Surveillance+Module+Module</url>
 
 	<developers>
@@ -39,14 +39,10 @@
 
 	<dependencyManagement>
 		<dependencies>
-
 			<!-- Libraries to add as dependencies with compile or runtime scope: Find 
 				matching dependencies in the maven central repository. <dependency> <groupId>org.other.library</groupId> 
 				<artifactId>library-name</artifactId> <version>library.version</version> 
 				<scope>compile</scope> </dependency> -->
-
-
-
 			<!-- Begin OpenMRS core -->
 
 			<dependency>
@@ -88,10 +84,7 @@
 				<type>pom</type>
 				<scope>test</scope>
 			</dependency>
-
 			<!-- End OpenMRS core -->
-
-
 		</dependencies>
 	</dependencyManagement>
 
@@ -141,9 +134,15 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.4</version>
+			<groupId>org.kemricdc</groupId>
+			<artifactId>Hl7Module</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+			    <exclusion>
+			        <groupId>ca.uhn.hapi</groupId>
+			        <artifactId>hapi</artifactId>
+			    </exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>

@@ -1,18 +1,19 @@
 package org.openmrs.module.hivcasebasedsurveillance.mappers;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 
-import org.kemricdc.constants.IdentifierTypeName;
+import org.kemricdc.entities.MaritalStatus;
 import org.kemricdc.entities.Person;
 import org.kemricdc.entities.PersonIdentifier;
+import org.kemricdc.entities.Sex;
+import org.openmrs.Concept;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
 import org.openmrs.api.context.Context;
 
 public class PersonMapper {
 
-	public static final Integer CCC_NUMBER_ID = 6;
 	private Patient omrsPatient;
 	private Person oecPerson;
 
@@ -46,22 +47,57 @@ public class PersonMapper {
 		oecPerson.setFirstName(omrsPatient.getGivenName());
 		oecPerson.setMiddleName(omrsPatient.getMiddleName());
 		oecPerson.setLastName(omrsPatient.getFamilyName());
-		oecPerson.setBirthdate(omrsPatient.getBirthdate());
-		oecPerson.setSex(omrsPatient.getGender());
+		oecPerson.setDob(omrsPatient.getBirthdate());
+		oecPerson.setSex(omrsPatient.getGender().equals("M") ? Sex.MALE : Sex.FEMALE);
 
-		PatientIdentifier pid = omrsPatient.getPatientIdentifier(Context
-				.getPatientService().getPatientIdentifierType(CCC_NUMBER_ID));
-		if (pid != null) {
-			Set<PersonIdentifier> patientIds = new HashSet<PersonIdentifier>();
-
-			PersonIdentifier p0 = new PersonIdentifier();
-			p0.setIdentifierType(IdentifierTypeName.CCC_NUMBER);
-			p0.setIdentifier(pid.getIdentifier());
-			patientIds.add(p0);
-			oecPerson.setPersonIdentifiers(patientIds);
+		Concept maritalStatusConcept = Context.getConceptService().getConcept(1054);
+		ArrayList<Obs> maritalStatusObs = (ArrayList<Obs>) Context.getObsService().getObservationsByPersonAndConcept(omrsPatient,
+				maritalStatusConcept);
+		if (maritalStatusObs == null) {
+			oecPerson.setMaritalStatus(MaritalStatus.MISSING);
 		} else {
-			System.out.println("Patient identifier(CCC Number) not found");
+			if (maritalStatusObs.size() == 0) {
+				oecPerson.setMaritalStatus(MaritalStatus.MISSING);
+			} else {
+				Obs lastMaritalStatusRecorded = (Obs) maritalStatusObs.get(0);
+				this.mapPatientMaritalStatus(lastMaritalStatusRecorded.getValueCoded().getConceptId());
+			}
 		}
 
 	}
+
+	public void mapPatient(Set<PersonIdentifier> patientIds) {
+		this.mapPatient();
+		oecPerson.setPersonIdentifiers(patientIds);
+	}
+
+	public void mapPatientMaritalStatus(int maritalStatus) {
+		switch (maritalStatus) {
+		case 1057:
+			oecPerson.setMaritalStatus(MaritalStatus.SINGLE);
+			break;
+		case 5555:
+			oecPerson.setMaritalStatus(MaritalStatus.MONOGAMOUS_MARRIED);
+			break;
+		case 159715:
+			oecPerson.setMaritalStatus(MaritalStatus.POLYGAMOUS_MARRIED);
+			break;
+		case 1058:
+			oecPerson.setMaritalStatus(MaritalStatus.DIVORCED);
+			break;
+		case 1056:
+			oecPerson.setMaritalStatus(MaritalStatus.SEPARATED);
+			break;
+		case 1059:
+			oecPerson.setMaritalStatus(MaritalStatus.WIDOWED);
+			break;
+		case 1060:
+			oecPerson.setMaritalStatus(MaritalStatus.COHABITING);
+			break;
+		default:
+			oecPerson.setMaritalStatus(MaritalStatus.MISSING);
+		}
+
+	}
+
 }
