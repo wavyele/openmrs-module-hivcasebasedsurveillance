@@ -10,6 +10,7 @@ import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.context.Context;
 
 public class PatientIdsMapper {
+	private static final int NATIONAL_ID_NUMBER_ID = 5;
 	private static final int PATIENT_CLINIC_NUMBER_ID = 4;
 	private HashSet<PersonIdentifier> patientIds = new HashSet<PersonIdentifier>();
 	private Patient patient;
@@ -37,9 +38,9 @@ public class PatientIdsMapper {
 		for (PatientIdentifierType pidType : Context.getPatientService().getPatientIdentifierTypes(null, null, null, null)) {
 			PatientIdentifier patientIdentifier = this.patient.getPatientIdentifier(pidType);
 			if (patientIdentifier != null) {
+				String patientIdentifierValue = patientIdentifier.getIdentifier();
 				switch (pidType.getId()) {
 				case PATIENT_CLINIC_NUMBER_ID:// Patient Clinic Number
-					String patientIdentifierValue = patientIdentifier.getIdentifier();
 					if (patientIdentifierValue != null) {
 						PersonIdentifier p = new PersonIdentifier();
 						p.setIdentifierType(IdentifierType.CCC);
@@ -47,7 +48,14 @@ public class PatientIdsMapper {
 						patientIds.add(p);
 					}
 					break;
-
+				case NATIONAL_ID_NUMBER_ID: // National ID Number
+					if (patientIdentifierValue != null) {
+						PersonIdentifier p = new PersonIdentifier();
+						p.setIdentifierType(IdentifierType.NATIONAL);
+						p.setIdentifier(patientIdentifierValue);
+						patientIds.add(p);
+					}
+					break;
 				default:
 					break;
 				}
