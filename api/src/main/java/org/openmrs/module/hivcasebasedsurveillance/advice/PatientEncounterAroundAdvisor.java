@@ -137,8 +137,7 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					} else if (obs.getValueCoded().getConceptId() == 160034) {
 						oruFillerMapper.setEvent(Event.DECEASED.getValue());
 						fillers.add(oruFillerMapper.getOruFiller());
-					}
-					else{
+					} else {
 						break;
 					}
 					oruFillerMapper.mapObs(obs.getEncounter().getEncounterDatetime());
@@ -154,10 +153,8 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					oruFillerMapper.mapObs(null);
 					break;
 				case 1113:// TB Treatment
-					if (obs.getValueCoded().getConceptId() == 1259) {
-						oruFillerMapper.setEvent(Event.TB_TREATMENT.getValue());
-						fillers.add(oruFillerMapper.getOruFiller());
-					}
+					oruFillerMapper.setEvent(Event.TB_TREATMENT.getValue());
+					fillers.add(oruFillerMapper.getOruFiller());
 					oruFillerMapper.mapObs(null);
 					break;
 				case 5599:// Birth

@@ -29,6 +29,7 @@ import org.openmrs.module.hivcasebasedsurveillance.utils.AppPropertiesLoader;
 import org.springframework.aop.AfterReturningAdvice;
 
 public class PatientOrderReturningAdvice implements AfterReturningAdvice {
+	private static final int MIN_DRUGS_IN_A_REGIMEN = 3;
 	private static final String CODING_SYSTEM_PROPERTY_NAME = "coding_system";
 	private static final int CHANGE_REGIMEN_CONCEPT_ID = 1259;
 	private static final int START_DRUGS_CONCEPT_ID = 1256;
@@ -48,7 +49,7 @@ public class PatientOrderReturningAdvice implements AfterReturningAdvice {
 				 * Check if the drug order fulfills the combination of 3 or more
 				 * drugs per regimen
 				 */
-				if (drugOrders.size() >= 3) {
+				if (drugOrders.size() >= MIN_DRUGS_IN_A_REGIMEN) {
 					// Construct the regimen from drug orders
 					String regimen = "";
 					for (DrugOrder drugOrder : drugOrders) {

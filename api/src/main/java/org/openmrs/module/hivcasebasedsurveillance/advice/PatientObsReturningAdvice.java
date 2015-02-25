@@ -20,6 +20,7 @@ import org.springframework.aop.AfterReturningAdvice;
 
 public class PatientObsReturningAdvice implements AfterReturningAdvice {
 
+	private static final int MARITAL_STATUS_CONCEPT_ID = 1054;
 	private Log log = LogFactory.getLog(this.getClass());
 	
 
@@ -30,7 +31,7 @@ public class PatientObsReturningAdvice implements AfterReturningAdvice {
 
 			AppProperties appProperties = new AppPropertiesLoader(new AppProperties()).getAppProperties();
 
-			if (obs.getConcept().getConceptId() == 1054) {
+			if (obs.getConcept().getConceptId() == MARITAL_STATUS_CONCEPT_ID) {
 				org.openmrs.Person omrsPerson = obs.getPerson();
 				Patient omrsPatient = Context.getPatientService().getPatient(omrsPerson.getPersonId());
 				HashSet<PersonIdentifier> patientIds = new PatientIdsMapper(omrsPatient).getPatientIds();
