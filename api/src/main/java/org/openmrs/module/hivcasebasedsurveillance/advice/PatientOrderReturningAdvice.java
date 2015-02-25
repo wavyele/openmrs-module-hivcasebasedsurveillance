@@ -1,8 +1,10 @@
 package org.openmrs.module.hivcasebasedsurveillance.advice;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +36,7 @@ public class PatientOrderReturningAdvice implements AfterReturningAdvice {
 	private static final int CHANGE_REGIMEN_CONCEPT_ID = 1259;
 	private static final int START_DRUGS_CONCEPT_ID = 1256;
 	private static final int ARV_PLAN_CONCEPT_ID = 1255;
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss",Locale.ENGLISH);
 	private Log log = LogFactory.getLog(this.getClass());
 
 	@Override
@@ -52,7 +55,9 @@ public class PatientOrderReturningAdvice implements AfterReturningAdvice {
 				if (drugOrders.size() >= MIN_DRUGS_IN_A_REGIMEN) {
 					// Construct the regimen from drug orders
 					String regimen = "";
+					Date drugStartDate = null;// Capture the regimen start date
 					for (DrugOrder drugOrder : drugOrders) {
+						drugStartDate = drugOrder.getStartDate();
 						regimen += drugOrder.getConcept().getShortNameInLocale(Locale.ENGLISH).getName() + "/";
 					}
 					// Truncate the trailing "/" from the regimen string
@@ -94,6 +99,7 @@ public class PatientOrderReturningAdvice implements AfterReturningAdvice {
 							} else {
 								proceed = false;
 							}
+							oruFillerMapper.getOruFiller().setDateTimeOfObservation(sdf.format(drugStartDate));
 							if (proceed) {
 								try {
 									EventsHl7Service eventsHl7Service = new EventsHl7Service(personMapper.getOecPerson(), fillers,

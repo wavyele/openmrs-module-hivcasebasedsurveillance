@@ -48,6 +48,23 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 	}
 
 	private class PatientEncounterAroundAdvice implements MethodInterceptor {
+		private static final int DISEASED_DIAGNOSED_CONCEPT_ID = 1661;
+		private static final int NO_CONCEPT_ID = 1256;
+		private static final int YES_CONCEPT_ID = 1255;
+		private static final String NO_STRING = "NO";
+		private static final String YES_STRING = "YES";
+		private static final int DECEASED_CONCEPT_ID = 160034;
+		private static final int TRANSFER_OUT_CONCEPT_ID = 159492;
+		private static final int LOST_TO_FOLLOWUP_CONCEPT_ID = 5240;
+		private static final int CHILD_WHO_STAGE_2_ID = 1221;
+		private static final int CHILD_WHO_STAGE_3_ID = 1222;
+		private static final int CHILD_WHO_STAGE_4_ID = 1223;
+		private static final int ADULT_WHO_STAGE_4_ID = 1207;
+		private static final int ADULT_WHO_STAGE_3_ID = 1206;
+		private static final int ADULT_WHO_STAGE_2_ID = 1205;
+		private static final int CHILD_WHO_STAGE_1_ID = 1220;
+		private static final int ADULT_WHO_STAGE_1_ID = 1204;
+
 		public Object invoke(MethodInvocation invocation) throws Throwable {
 			Object args[] = invocation.getArguments();
 			Encounter savedEncounter = (Encounter) args[0];
@@ -116,25 +133,25 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					fillers.add(oruFillerMapper.getOruFiller());
 					int whoStageConceptId = obs.getValueCoded().getConceptId();
 					Integer whoStage = -1;
-					if (whoStageConceptId == 1204 || whoStageConceptId == 1220) {
+					if (whoStageConceptId == ADULT_WHO_STAGE_1_ID || whoStageConceptId == CHILD_WHO_STAGE_1_ID) {
 						whoStage = 1;
-					} else if (whoStageConceptId == 1205 || whoStageConceptId == 1221) {
+					} else if (whoStageConceptId == ADULT_WHO_STAGE_2_ID || whoStageConceptId == CHILD_WHO_STAGE_2_ID) {
 						whoStage = 2;
-					} else if (whoStageConceptId == 1206 || whoStageConceptId == 1222) {
+					} else if (whoStageConceptId == ADULT_WHO_STAGE_3_ID || whoStageConceptId == CHILD_WHO_STAGE_3_ID) {
 						whoStage = 3;
-					} else if (whoStageConceptId == 1207 || whoStageConceptId == 1223) {
+					} else if (whoStageConceptId == ADULT_WHO_STAGE_4_ID || whoStageConceptId == CHILD_WHO_STAGE_4_ID) {
 						whoStage = 4;
 					}
 					oruFillerMapper.mapObs(whoStage.toString());
 					break;
 				case 161555:// Lost to follow up
-					if (obs.getValueCoded().getConceptId() == 5240) {
+					if (obs.getValueCoded().getConceptId() == LOST_TO_FOLLOWUP_CONCEPT_ID) {
 						oruFillerMapper.setEvent(Event.LOST_TO_FOLLOWUP.getValue());
 						fillers.add(oruFillerMapper.getOruFiller());
-					} else if (obs.getValueCoded().getConceptId() == 159492) {
+					} else if (obs.getValueCoded().getConceptId() == TRANSFER_OUT_CONCEPT_ID) {
 						oruFillerMapper.setEvent(Event.TRANSFER_OUT.getValue());
 						fillers.add(oruFillerMapper.getOruFiller());
-					} else if (obs.getValueCoded().getConceptId() == 160034) {
+					} else if (obs.getValueCoded().getConceptId() == DECEASED_CONCEPT_ID) {
 						oruFillerMapper.setEvent(Event.DECEASED.getValue());
 						fillers.add(oruFillerMapper.getOruFiller());
 					} else {
@@ -145,12 +162,13 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 				case 1255:// Change in regimen
 					oruFillerMapper.setEvent(Event.CHANGE_IN_REGIMEN.getValue());
 					fillers.add(oruFillerMapper.getOruFiller());
-					if (obs.getValueCoded().getConceptId() == 1255) {
-						oruFillerMapper.mapObs("YES");
-					} else {
-						oruFillerMapper.mapObs("NO");
+					if (obs.getValueCoded().getConceptId() == YES_CONCEPT_ID) {
+						oruFillerMapper.mapObs(YES_STRING);
+					} else if(obs.getValueCoded().getConceptId() == NO_CONCEPT_ID){
+						oruFillerMapper.mapObs(NO_STRING);
+					}else{
+						oruFillerMapper.mapObs(null);						
 					}
-					oruFillerMapper.mapObs(null);
 					break;
 				case 1113:// TB Treatment
 					oruFillerMapper.setEvent(Event.TB_TREATMENT.getValue());
@@ -168,7 +186,7 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					oruFillerMapper.mapObs(null);
 					break;
 				case 1659: // TB Diagnosis
-					if (obs.getValueCoded().getConceptId() == 142177) {
+					if (obs.getValueCoded().getConceptId() == DISEASED_DIAGNOSED_CONCEPT_ID) {
 						oruFillerMapper.setEvent(Event.TB_DIAGNOSIS.getValue());
 						fillers.add(oruFillerMapper.getOruFiller());
 						oruFillerMapper.mapObs(obs.getEncounter().getEncounterDatetime());
