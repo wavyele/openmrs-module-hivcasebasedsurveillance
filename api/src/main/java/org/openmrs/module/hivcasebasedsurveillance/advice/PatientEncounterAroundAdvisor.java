@@ -48,7 +48,7 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 	}
 
 	private class PatientEncounterAroundAdvice implements MethodInterceptor {
-		private static final int DISEASED_DIAGNOSED_CONCEPT_ID = 1661;
+		private static final int TB_SUSPECT_CONCEPT_ID = 142177;
 		private static final int NO_CONCEPT_ID = 1256;
 		private static final int YES_CONCEPT_ID = 1255;
 		private static final String NO_STRING = "NO";
@@ -186,7 +186,7 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					oruFillerMapper.mapObs(null);
 					break;
 				case 1659: // TB Diagnosis
-					if (obs.getValueCoded().getConceptId() == DISEASED_DIAGNOSED_CONCEPT_ID) {
+					if (obs.getValueCoded().getConceptId() == TB_SUSPECT_CONCEPT_ID) {
 						oruFillerMapper.setEvent(Event.TB_DIAGNOSIS.getValue());
 						fillers.add(oruFillerMapper.getOruFiller());
 						oruFillerMapper.mapObs(obs.getEncounter().getEncounterDatetime());
