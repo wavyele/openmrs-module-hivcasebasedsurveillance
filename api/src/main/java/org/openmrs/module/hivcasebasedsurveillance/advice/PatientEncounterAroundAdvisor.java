@@ -49,10 +49,6 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 
 	private class PatientEncounterAroundAdvice implements MethodInterceptor {
 		private static final int TB_SUSPECT_CONCEPT_ID = 142177;
-		private static final int NO_CONCEPT_ID = 1256;
-		private static final int YES_CONCEPT_ID = 1255;
-		private static final String NO_STRING = "NO";
-		private static final String YES_STRING = "YES";
 		private static final int DECEASED_CONCEPT_ID = 160034;
 		private static final int TRANSFER_OUT_CONCEPT_ID = 159492;
 		private static final int LOST_TO_FOLLOWUP_CONCEPT_ID = 5240;
@@ -159,17 +155,17 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					}
 					oruFillerMapper.mapObs(obs.getEncounter().getEncounterDatetime());
 					break;
+
 				case 1255:// Change in regimen
-					oruFillerMapper.setEvent(Event.CHANGE_IN_REGIMEN.getValue());
-					fillers.add(oruFillerMapper.getOruFiller());
-					if (obs.getValueCoded().getConceptId() == YES_CONCEPT_ID) {
-						oruFillerMapper.mapObs(YES_STRING);
-					} else if(obs.getValueCoded().getConceptId() == NO_CONCEPT_ID){
-						oruFillerMapper.mapObs(NO_STRING);
-					}else{
-						oruFillerMapper.mapObs(null);						
-					}
+					/*
+					 * oruFillerMapper.setEvent(Event.CHANGE_IN_REGIMEN.getValue(
+					 * )); 
+					 * fillers.add(oruFillerMapper.getOruFiller());
+					 */					
+					PatientOrderReturningAdvice patientOrderAdvice = new PatientOrderReturningAdvice();
+					patientOrderAdvice.processDrugOrders(omrsPatient);
 					break;
+
 				case 1113:// TB Treatment
 					oruFillerMapper.setEvent(Event.TB_TREATMENT.getValue());
 					fillers.add(oruFillerMapper.getOruFiller());

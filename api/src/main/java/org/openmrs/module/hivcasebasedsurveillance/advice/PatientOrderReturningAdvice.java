@@ -22,6 +22,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hivcasebasedsurveillance.constants.Event;
 import org.openmrs.module.hivcasebasedsurveillance.mappers.OruFillerMapper;
@@ -44,71 +45,82 @@ public class PatientOrderReturningAdvice implements AfterReturningAdvice {
 		if (method.getName().equals("saveOrder")) {
 			Order order = (Order) returnValue;
 			Patient omrsPatient = order.getPatient();
-			org.openmrs.Person omrsPerson = Context.getPersonService().getPerson(omrsPatient.getPersonId());
-			@SuppressWarnings("deprecation")
-			List<DrugOrder> drugOrders = Context.getOrderService().getDrugOrdersByPatient(omrsPatient);
-			if (drugOrders != null) {
-				/*
-				 * Check if the drug order fulfills the combination of 3 or more
-				 * drugs per regimen
-				 */
-				if (drugOrders.size() >= MIN_DRUGS_IN_A_REGIMEN) {
-					// Construct the regimen from drug orders
-					String regimen = "";
-					Date drugStartDate = null;// Capture the regimen start date
-					for (DrugOrder drugOrder : drugOrders) {
-						drugStartDate = drugOrder.getStartDate();
-						regimen += drugOrder.getConcept().getShortNameInLocale(Locale.ENGLISH).getName() + "/";
-					}
-					// Truncate the trailing "/" from the regimen string
-					regimen = regimen.substring(0, regimen.length() - 1);
 
-					// check the ARV plan
-					// 1255=> ARV Plan
-					Concept arvPlanConcept = Context.getConceptService().getConcept(ARV_PLAN_CONCEPT_ID);
+			processDrugOrders(omrsPatient);
+		}
+	}
 
-					// 1256 => start drugs
-					Concept startDrugsConcept = Context.getConceptService().getConcept(START_DRUGS_CONCEPT_ID);
-					// 1259 => Change Regimen
-					Concept changeRegimenConcept = Context.getConceptService().getConcept(CHANGE_REGIMEN_CONCEPT_ID);
+	/**
+	 * @param omrsPatient
+	 * @param omrsPerson
+	 * @throws APIException
+	 * @throws Exception
+	 */
+	public void processDrugOrders(Patient omrsPatient) throws APIException, Exception {
+		org.openmrs.Person omrsPerson = Context.getPersonService().getPerson(omrsPatient.getPersonId());
+		@SuppressWarnings("deprecation")
+		List<DrugOrder> drugOrders = Context.getOrderService().getDrugOrdersByPatient(omrsPatient);
+		if (drugOrders != null) {
+			/*
+			 * Check if the drug order fulfills the combination of 3 or more
+			 * drugs per regimen
+			 */
+			if (drugOrders.size() >= MIN_DRUGS_IN_A_REGIMEN) {
+				// Construct the regimen from drug orders
+				String regimen = "";
+				Date drugStartDate = null;// Capture the regimen start date
+				for (DrugOrder drugOrder : drugOrders) {
+					drugStartDate = drugOrder.getStartDate();
+					regimen += drugOrder.getConcept().getShortNameInLocale(Locale.ENGLISH).getName() + "/";
+				}
+				// Truncate the trailing "/" from the regimen string
+				regimen = regimen.substring(0, regimen.length() - 1);
 
-					List<Obs> lastArvPlanObsList = Context.getObsService().getObservations(Collections.singletonList(omrsPerson), null,
-							Collections.singletonList(arvPlanConcept), null, null, null, null, 1, null, null, null, false);
-					if (lastArvPlanObsList != null) {
-						if (lastArvPlanObsList.size() > 0) {
-							AppProperties appProperties = new AppPropertiesLoader(new AppProperties()).getAppProperties();
-							Person oecPerson = new Person();
-							List<OruFiller> fillers = new ArrayList<OruFiller>();
-							OruFiller oruFiller = new OruFiller();
-							Obs lastArvPlanObs = lastArvPlanObsList.get(0);
-							OruFillerMapper oruFillerMapper = new OruFillerMapper(lastArvPlanObs, oruFiller);
-							HashSet<PersonIdentifier> patientIds = new PatientIdsMapper(omrsPatient).getPatientIds();
-							PersonMapper personMapper = new PersonMapper(omrsPatient, oecPerson);
-							personMapper.mapPatient(patientIds);
-							oruFiller.setCodingSystem((String) appProperties.getProperty(CODING_SYSTEM_PROPERTY_NAME));
-							Boolean proceed = true;
-							if (lastArvPlanObs.getValueCoded().equals( startDrugsConcept)) {
-								oruFillerMapper.setEvent(Event.FIRST_LINE_REGIMEN.getValue());
-								fillers.add(oruFillerMapper.getOruFiller());
-								oruFillerMapper.mapObs(regimen);
+				// check the ARV plan
+				// 1255=> ARV Plan
+				Concept arvPlanConcept = Context.getConceptService().getConcept(ARV_PLAN_CONCEPT_ID);
 
-							} else if (lastArvPlanObs.getValueCoded().equals(changeRegimenConcept)) {
-								oruFillerMapper.setEvent(Event.SECOND_LINE_REGIMEN.getValue());
-								fillers.add(oruFillerMapper.getOruFiller());
-								oruFillerMapper.mapObs(regimen);
-							} else {
-								proceed = false;
-							}
-							oruFillerMapper.getOruFiller().setDateTimeOfObservation(sdf.format(drugStartDate));
-							if (proceed) {
-								try {
-									EventsHl7Service eventsHl7Service = new EventsHl7Service(personMapper.getOecPerson(), fillers,
-											appProperties);
-									eventsHl7Service.doWork(Triggers.R01.getValue());
-								} catch (Exception ex) {
-									log.debug(ex);
-									System.out.println("Unable to send HL7 message: " + ex.getMessage());
-								}
+				// 1256 => start drugs
+				Concept startDrugsConcept = Context.getConceptService().getConcept(START_DRUGS_CONCEPT_ID);
+				// 1259 => Change Regimen
+				Concept changeRegimenConcept = Context.getConceptService().getConcept(CHANGE_REGIMEN_CONCEPT_ID);
+
+				List<Obs> lastArvPlanObsList = Context.getObsService().getObservations(Collections.singletonList(omrsPerson), null,
+						Collections.singletonList(arvPlanConcept), null, null, null, null, 1, null, null, null, false);
+				if (lastArvPlanObsList != null) {
+					if (lastArvPlanObsList.size() > 0) {
+						AppProperties appProperties = new AppPropertiesLoader(new AppProperties()).getAppProperties();
+						Person oecPerson = new Person();
+						List<OruFiller> fillers = new ArrayList<OruFiller>();
+						OruFiller oruFiller = new OruFiller();
+						Obs lastArvPlanObs = lastArvPlanObsList.get(0);
+						OruFillerMapper oruFillerMapper = new OruFillerMapper(lastArvPlanObs, oruFiller);
+						HashSet<PersonIdentifier> patientIds = new PatientIdsMapper(omrsPatient).getPatientIds();
+						PersonMapper personMapper = new PersonMapper(omrsPatient, oecPerson);
+						personMapper.mapPatient(patientIds);
+						oruFiller.setCodingSystem((String) appProperties.getProperty(CODING_SYSTEM_PROPERTY_NAME));
+						Boolean proceed = true;
+						if (lastArvPlanObs.getValueCoded().equals( startDrugsConcept)) {
+							oruFillerMapper.setEvent(Event.FIRST_LINE_REGIMEN.getValue());
+							fillers.add(oruFillerMapper.getOruFiller());
+							oruFillerMapper.mapObs(regimen);
+
+						} else if (lastArvPlanObs.getValueCoded().equals(changeRegimenConcept)) {
+							oruFillerMapper.setEvent(Event.SECOND_LINE_REGIMEN.getValue());
+							fillers.add(oruFillerMapper.getOruFiller());
+							oruFillerMapper.mapObs(regimen);
+						} else {
+							proceed = false;
+						}
+						oruFillerMapper.getOruFiller().setDateTimeOfObservation(sdf.format(drugStartDate));
+						if (proceed) {
+							try {
+								EventsHl7Service eventsHl7Service = new EventsHl7Service(personMapper.getOecPerson(), fillers,
+										appProperties);
+								eventsHl7Service.doWork(Triggers.R01.getValue());
+							} catch (Exception ex) {
+								log.debug(ex);
+								System.out.println("Unable to send HL7 message: " + ex.getMessage());
 							}
 						}
 					}
