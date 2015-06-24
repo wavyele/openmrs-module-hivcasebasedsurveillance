@@ -6,23 +6,26 @@
 	<id>hivcasebasedsurveillance</id>
 	<name>HIV Case Based Surveillance Module</name>
 	<version>1.0-SNAPSHOT</version>
-	<package>org.openmrs.module.hivcasebasedsurveillance</package>
+	<package>org.openmrs.module.hivcasebasedsurveillance
+	</package>
 	<author>KOOchieng</author>
 	<description>
 		Module to asssist the HIV case based surveillance project by mining certain data from the OpenMRS application and sending it to a central data store manned by NASCOP
 	</description>
-	<updateURL>https://modules.openmrs.org/modules/download/hivcasebasedsurveillance/update.rdf</updateURL>
+	<updateURL>https://modules.openmrs.org/modules/download/hivcasebasedsurveillance/update.rdf
+	</updateURL>
 	<require_version>1.9.0</require_version>
 	<!-- / Module Properties -->
 
-	
+
 	<!-- Module Activator -->
-	<activator>org.openmrs.module.hivcasebasedsurveillance.HIVCaseBasedSurveillanceActivator</activator>
-	
-	
+	<activator>org.openmrs.module.hivcasebasedsurveillance.HIVCaseBasedSurveillanceActivator
+	</activator>
+
+
 	<!-- Maps hibernate file's, if present -->
 	<mappingFiles>
-				
+
 	</mappingFiles>
 
 	<!-- Internationalization -->
@@ -41,20 +44,31 @@
 	</messages>
 	<!-- /Internationalization -->
 	<advice>
-	    <point>org.openmrs.api.PatientService</point>
-	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientAroundAdvisor</class>
+		<point>org.openmrs.api.PatientService</point>
+		<class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientAroundAdvisor
+		</class>
 	</advice>
 	<advice>
-	    <point>org.openmrs.api.EncounterService</point>
-	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientEncounterAroundAdvisor</class>
+		<point>org.openmrs.api.EncounterService</point>
+		<class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientEncounterAroundAdvisor
+		</class>
 	</advice>
 	<advice>
-	    <point>org.openmrs.api.ObsService</point>
-	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientObsReturningAdvice</class>
+		<point>org.openmrs.api.ObsService</point>
+		<class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientObsReturningAdvice
+		</class>
 	</advice>
 	<advice>
-	    <point>org.openmrs.api.OrderService</point>
-	    <class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientOrderReturningAdvice</class>
+		<point>org.openmrs.api.OrderService</point>
+		<class>org.openmrs.module.hivcasebasedsurveillance.advice.PatientOrderReturningAdvice
+		</class>
 	</advice>
+	<globalProperty>
+		<property>hcbsurveillance.propertiesFileLocation</property>
+		<defaultValue>/usr/share/tomcat6/.OpenMRS/app.properties</defaultValue>
+		<description>
+			Location of the app.properties file used by the hits module
+		</description>
+	</globalProperty>
 </module>
 

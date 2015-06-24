@@ -48,6 +48,7 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 	}
 
 	private class PatientEncounterAroundAdvice implements MethodInterceptor {
+		private static final int DEAD_CONCEPT_ID = 160432;
 		private static final int TB_SUSPECT_CONCEPT_ID = 142177;
 		private static final int DECEASED_CONCEPT_ID = 160034;
 		private static final int TRANSFER_OUT_CONCEPT_ID = 159492;
@@ -98,7 +99,7 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					oruFillerMapper.mapObs(null);
 					break;
 				case 159599: // ART Start Date
-					oruFillerMapper.setEvent(Event.HIV_CARE_INITIATION.getValue());
+					oruFillerMapper.setEvent(Event.ART_START.getValue());
 					fillers.add(oruFillerMapper.getOruFiller());
 					oruFillerMapper.mapObs(null);
 					break;
@@ -140,6 +141,13 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 					}
 					oruFillerMapper.mapObs(whoStage.toString());
 					break;
+				case 160433:// Death
+					if (obs.getValueCoded().getConceptId() == DEAD_CONCEPT_ID) {
+						oruFillerMapper.setEvent(Event.DECEASED.getValue());
+						fillers.add(oruFillerMapper.getOruFiller());
+						oruFillerMapper.mapObs(null);
+					}
+					break;
 				case 161555:// Lost to follow up
 					if (obs.getValueCoded().getConceptId() == LOST_TO_FOLLOWUP_CONCEPT_ID) {
 						oruFillerMapper.setEvent(Event.LOST_TO_FOLLOWUP.getValue());
@@ -159,9 +167,8 @@ public class PatientEncounterAroundAdvisor extends StaticMethodMatcherPointcutAd
 				case 1255:// Change in regimen
 					/*
 					 * oruFillerMapper.setEvent(Event.CHANGE_IN_REGIMEN.getValue(
-					 * )); 
-					 * fillers.add(oruFillerMapper.getOruFiller());
-					 */					
+					 * )); fillers.add(oruFillerMapper.getOruFiller());
+					 */
 					PatientOrderReturningAdvice patientOrderAdvice = new PatientOrderReturningAdvice();
 					patientOrderAdvice.processDrugOrders(omrsPatient);
 					break;
